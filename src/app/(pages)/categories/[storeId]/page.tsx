@@ -10,7 +10,7 @@ const ManageCategories = () => {
         name="Billboards"
         stocks={3}
         desc="Manage billboards for your store"
-        route={`/manage-billboards/id?${storeId}`}
+        route={`/manage-billboards/storeId?${storeId}`}
       />
     </div>
   )

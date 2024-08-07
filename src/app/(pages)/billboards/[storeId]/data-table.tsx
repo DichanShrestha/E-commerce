@@ -135,7 +135,7 @@ export const columns: ColumnDef<Billboards>[] = [
               <FaRegEdit className="mr-2" />
               <Link
                 href={{
-                  pathname: `/manage-billboards/id?${storeId}`,
+                  pathname: `/manage-billboards/storeId?${storeId}`,
                   query: data,
                 }}
               >

@@ -40,8 +40,8 @@ const Navbar = () => {
       </div>
       <div className="flex gap-3 text-sm">
         <NavLink href="/">Overview</NavLink>
-        <NavLink href={`/billboards/id?${storeId}`}>Billboards</NavLink>
-        <NavLink href="/categories">Categories</NavLink>
+        <NavLink href={`/billboards/storeId?${storeId}`}>Billboards</NavLink>
+        <NavLink href={`/categories/storeId?${storeId}`}>Categories</NavLink>
         <NavLink href="/sizes">Sizes</NavLink>
         <NavLink href="/colors">Colors</NavLink>
         <NavLink href="/products">Products</NavLink>
