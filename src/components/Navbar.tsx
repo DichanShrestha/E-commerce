@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
+import { useUserStore } from "@/store/useUserStore";
 
 const NavLink = ({ href, children }: { href: string; children: string }) => {
   const pathname = usePathname();
@@ -31,6 +32,7 @@ const NavLink = ({ href, children }: { href: string; children: string }) => {
 const Navbar = () => {
   const { setTheme, resolvedTheme } = useTheme();
   const [position, setPosition] = useState<string>("dark");
+  const {storeId} = useUserStore()
   return (
     <div className="flex justify-between h-[55px] items-center mx-2">
       <div>
@@ -38,7 +40,7 @@ const Navbar = () => {
       </div>
       <div className="flex gap-3 text-sm">
         <NavLink href="/">Overview</NavLink>
-        <NavLink href="/billboards">Billboards</NavLink>
+        <NavLink href={`/billboards/id?${storeId}`}>Billboards</NavLink>
         <NavLink href="/categories">Categories</NavLink>
         <NavLink href="/sizes">Sizes</NavLink>
         <NavLink href="/colors">Colors</NavLink>

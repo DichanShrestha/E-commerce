@@ -39,7 +39,7 @@ export default function ComboBox() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [displayedStoreName, setDisplayedStoreName] = useState<string>("");
   const { toast } = useToast();
-  const { setStore } = useUserStore();
+  const { setStore, setStoreId, store } = useUserStore();
 
   const handleCreate = async () => {
     try {
@@ -82,6 +82,20 @@ export default function ComboBox() {
       setStore(savedStoreName);
     }
   }, []);
+
+  useEffect(() => {
+    if (store) {
+      const getStoreId = async () => {
+        try {
+          const response = await axios.post('/api/get-storeId', {name: store})
+        setStoreId(response.data.data)
+        } catch (error) {
+          console.log("Error getting store id", error)
+        }
+      }
+      getStoreId()
+    }
+  }, [store])
 
   useEffect(() => {
     const lowercasedQuery = searchQuery.toLowerCase();

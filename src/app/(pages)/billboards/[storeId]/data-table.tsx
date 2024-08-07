@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,10 +12,10 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
+} from "@tanstack/react-table";
+import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -23,8 +23,8 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -32,42 +32,23 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import Link from "next/link";
+} from "@/components/ui/table";
 import { IoCopyOutline } from "react-icons/io5";
 import { FaRegEdit } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
-
-const data: Billboards[] = [
-  {
-    id: "m5gr84i9",
-    Date: 'June 26th 2023',
-    Label: "Explore the Shirt Collection!",
-    URL: "https://localhost:5370"
-  },
-  {
-    id: "3u1reuv4",
-    Date: 'March 6th 2023',
-    Label: "Explore the Pant Collection!",
-    URL: "http://localhost:3000"
-  },
-  {
-    id: "derv1ws0",
-    Date: 'April 2nd 2023',
-    Label: "Explore the Jacket Collection!",
-    URL: "https://localhost:6500"
-  },
-]
+import axios from "axios";
+import { useUserStore } from "@/store/useUserStore";
+import { useToast } from "@/components/ui/use-toast";
+import Link from "next/link";
 
 export type Billboards = {
-  id: string
-  Date: string
-  Label: string
-  URL: string
-}
+  id: string;
+  Date: string;
+  Label: string;
+  ImageURL: string;
+};
 
 export const columns: ColumnDef<Billboards>[] = [
-  
   {
     accessorKey: "Label",
     header: ({ column }) => {
@@ -79,7 +60,7 @@ export const columns: ColumnDef<Billboards>[] = [
           Label
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
     cell: ({ row }) => <div className="lowercase">{row.getValue("Label")}</div>,
   },
@@ -87,25 +68,46 @@ export const columns: ColumnDef<Billboards>[] = [
     accessorKey: "Date",
     header: () => <div className="">Date</div>,
     cell: ({ row }) => {
-      const Date: string = row.getValue("Date")
+      const Date: string = row.getValue("Date");
 
-      return <div className=" font-medium">{Date}</div>
-    },
-  },
-  {
-    accessorKey: "URL",
-    header: () => <div className="">URL</div>,
-    cell: ({ row }) => {
-      const URL: string = row.getValue("URL")
-
-      return <Link href={URL} className="text-right font-medium">{URL}</Link>
+      return <div className=" font-medium">{Date}</div>;
     },
   },
   {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const payment = row.original
+      const payment = row.original;
+      const { toast } = useToast();
+      const { storeId } = useUserStore();
+      const data = {
+        imageURL: payment.ImageURL,
+        label: payment.Label,
+        id: payment.id,
+      };
+
+      const handleDelete = async () => {
+        try {
+          const response = await axios.delete(`/api/billboards/${storeId}`, {
+            data: { id: payment.id },
+            headers: { "Content-Type": "application/json" },
+          });
+          toast({
+            title: "Success",
+            description: response.data.message,
+          });
+        } catch (error: any) {
+          let errorMessage = "Error deleting billboard";
+          if (error.response) {
+            errorMessage = error.response.data.message || errorMessage;
+          }
+          toast({
+            title: "Error",
+            description: errorMessage,
+            variant: "destructive",
+          });
+        }
+      };
 
       return (
         <DropdownMenu>
@@ -118,28 +120,69 @@ export const columns: ColumnDef<Billboards>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
+              onClick={() => {
+                navigator.clipboard.writeText(payment.ImageURL);
+                toast({
+                  title: "Copied",
+                  description: "Billboard image url copied",
+                });
+              }}
             >
-              <IoCopyOutline className="mr-2"/>
-              Copy Id
+              <IoCopyOutline className="mr-2" />
+              Copy image
             </DropdownMenuItem>
-            <DropdownMenuItem><FaRegEdit className="mr-2"/>Update</DropdownMenuItem>
-            <DropdownMenuItem><MdDeleteOutline className="mr-2"/> Delete</DropdownMenuItem>
+            <DropdownMenuItem>
+              <FaRegEdit className="mr-2" />
+              <Link
+                href={{
+                  pathname: `/manage-billboards/id?${storeId}`,
+                  query: data,
+                }}
+              >
+                Update
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <MdDeleteOutline className="mr-2" />
+              <span onClick={handleDelete}>Delete</span>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
   },
-]
+];
 
 export function DataTable() {
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
-  )
+  );
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+  const [data, setData] = React.useState([]);
+  const { storeId } = useUserStore();
+
+  React.useEffect(() => {
+    const fetchStoreId = async () => {
+      try {
+        const response = await axios.get(`/api/billboards/${storeId}`);
+        const transformedData = response.data.data.map((item: any) => ({
+          id: item._id,
+          Label: item.label,
+          Date: new Date(item.createdAt).toLocaleDateString(),
+          ImageURL: item.imageURL,
+        }));
+
+        setData(transformedData);
+      } catch (error) {
+        console.error("Error fetching store ID:", error);
+      }
+    };
+
+    fetchStoreId();
+  }, [storeId]);
 
   const table = useReactTable({
     data,
@@ -158,7 +201,7 @@ export function DataTable() {
       columnVisibility,
       rowSelection,
     },
-  })
+  });
 
   return (
     <div className="w-full">
@@ -193,7 +236,7 @@ export function DataTable() {
                   >
                     {column.id}
                   </DropdownMenuCheckboxItem>
-                )
+                );
               })}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -213,7 +256,7 @@ export function DataTable() {
                             header.getContext()
                           )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -273,5 +316,5 @@ export function DataTable() {
         </div>
       </div>
     </div>
-  )
+  );
 }

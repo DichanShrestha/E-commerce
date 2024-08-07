@@ -3,14 +3,15 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useToast } from "@/components/ui/use-toast";
 import { useUserStore } from "@/store/useUserStore";
 import { Loader2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 const ManageBillBoard = () => {
-  const [image, setImage] = useState<File | null>(null);
+  const [image, setImage] = useState<File | null | string>(null);
   const [label, setLabel] = useState<string>("");
   // for cloudinary uploaded images
   const [publicId, setPublicId] = useState<string>("");
@@ -19,7 +20,20 @@ const ManageBillBoard = () => {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { toast } = useToast();
-  const { store } = useUserStore();
+  const { store, storeId } = useUserStore();
+
+  const searchParams = useSearchParams();
+  const imageURLUpdate = searchParams.get("imageURL");
+  const labelUpdate = searchParams.get("label");
+
+  useEffect(() => {
+    if (imageURLUpdate) {
+      setImageURL(imageURLUpdate);
+    }
+    if (labelUpdate) {
+      setLabel(labelUpdate);
+    }
+  }, [imageURLUpdate, labelUpdate]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -71,6 +85,8 @@ const ManageBillBoard = () => {
 
   const handleCreate = async () => {
     try {
+      setIsLoading(true);
+
       if (!imageURL) {
         setError("Image is missing");
         return;
@@ -86,14 +102,16 @@ const ManageBillBoard = () => {
       formData.append("publicId", publicId);
       formData.append("label", label);
       formData.append("store", store);
-      console.log(publicId);
-      console.log(formData.get("store"));
 
-      const response = await axios.post("/api/billboards", formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.post(
+        `/api/billboards/${storeId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       toast({
         title: "Success",
@@ -115,6 +133,45 @@ const ManageBillBoard = () => {
         description: message,
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      setIsLoading(true);
+
+      if (!imageURL && !label) {
+        setError("Image or label is required");
+        return;
+      }
+
+      const payload = {
+        id: searchParams.get("id"),
+        ...(imageURL && { updatedImageURL:imageURL }),
+        ...(label && { updatedLabel: label }),
+      };
+
+      const response = await axios.patch(`/api/billboards/${storeId}`, payload, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      toast({
+        title: "Success",
+        description: response.data.message,
+      });
+    } catch (error: any) {
+      setMessage("Error updating billboard");
+      if (error.response) setMessage(error.response.data.error);
+      else if (error.request) setMessage("No response from server");
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -154,38 +211,36 @@ const ManageBillBoard = () => {
           </div>
         </div>
         <div className="my-5">
-          <Button variant="outline" onClick={handleCreate} disabled={isLoading}>
+          <Button
+            variant="outline"
+            onClick={
+              labelUpdate || imageURLUpdate ? handleUpdate : handleCreate
+            }
+            disabled={isLoading}
+          >
             {isLoading ? (
               <>
                 <Loader2 className="animate-spin h-4 w-4 mr-2" />
                 Loading
               </>
+            ) : labelUpdate || imageURLUpdate ? (
+              "Update"
             ) : (
-              <>Create</>
+              "Create"
             )}
           </Button>
         </div>
         <div>
           <div className="mt-4 flex flex-col items-center relative">
-            {image && (
+            {imageURL && (
               <>
                 <h2 className="text-sm">Your billboard will look like this</h2>
                 <div className="relative w-full">
                   <img
-                    src={URL.createObjectURL(image)}
+                    src={imageURL}
                     alt="Billboard preview"
                     className="w-full h-64 object-cover rounded-md shadow-md"
                   />
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete();
-                    }}
-                    variant="destructive"
-                    className="absolute right-0 top-0 cursor-pointer"
-                  >
-                    ❌
-                  </Button>
                 </div>
               </>
             )}
