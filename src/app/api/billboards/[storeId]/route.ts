@@ -1,6 +1,5 @@
 import dbConnect from "@/lib/dbConnect";
 import BillboardModel from "@/model/billboards.model";
-import StoreModel from "@/model/stores.model";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {

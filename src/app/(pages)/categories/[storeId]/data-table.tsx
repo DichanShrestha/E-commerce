@@ -41,29 +41,37 @@ import { useUserStore } from "@/store/useUserStore";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 
-export type Billboards = {
+export type Categories = {
   id: string;
   Date: string;
-  Label: string;
-  ImageURL: string;
-  publicId: string;
+  Billboard: string;
+  Name: string;
 };
 
-export const columns: ColumnDef<Billboards>[] = [
+export const columns: ColumnDef<Categories>[] = [
   {
-    accessorKey: "Label",
+    accessorKey: "Name",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Label
+          Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("Label")}</div>,
+    cell: ({ row }) => <div className="lowercase">{row.getValue("Name")}</div>,
+  },
+  {
+    accessorKey: "Billboards",
+    header: () => <div className="">Billboards</div>,
+    cell: ({ row }) => {
+      const Billboards: string = row.getValue("Billboards");
+
+      return <div className=" font-medium">{Billboards}</div>;
+    },
   },
   {
     accessorKey: "Date",
@@ -82,26 +90,15 @@ export const columns: ColumnDef<Billboards>[] = [
       const { toast } = useToast();
       const { storeId } = useUserStore();
       const data = {
-        imageURL: payment.ImageURL,
-        label: payment.Label,
         id: payment.id,
-        publicId: payment.publicId
       };
-      
+
       const handleDelete = async () => {
         try {
           const response = await axios.delete(`/api/billboards/${storeId}`, {
             data: { id: payment.id },
             headers: { "Content-Type": "application/json" },
           });
-          
-          await axios.delete("/api/cloudinary", {
-            data: { public_id: payment.publicId },
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-          
           toast({
             title: "Success",
             description: response.data.message,
@@ -131,7 +128,7 @@ export const columns: ColumnDef<Billboards>[] = [
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() => {
-                navigator.clipboard.writeText(payment.ImageURL);
+                navigator.clipboard.writeText(payment.id);
                 toast({
                   title: "Copied",
                   description: "Billboard image url copied",
@@ -183,9 +180,8 @@ export function DataTable() {
           Label: item.label,
           Date: new Date(item.createdAt).toLocaleDateString(),
           ImageURL: item.imageURL,
-          publicId: item.publicId
         }));
-        
+
         setData(transformedData);
       } catch (error) {
         console.error("Error fetching store ID:", error);

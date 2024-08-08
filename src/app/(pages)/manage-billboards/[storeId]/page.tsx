@@ -185,10 +185,10 @@ const ManageBillBoard = () => {
         />
       </div>
       <div className="mx-10">
-        <div className="w-[800px] flex justify-between">
+        <div className="flex flex-col sm:flex-row justify-between lg:w-[900px] md:w-[700px]">
           <div>
             <Label>Background Image</Label>
-            <Input type="file" className="mt-2" onChange={handleImageChange} />
+            <Input type="file" className="mt-2 w-[217px]" onChange={handleImageChange} />
             {error === "Image is missing" ? (
               <span className="text-red-700 text-xs">{error}</span>
             ) : (
@@ -199,7 +199,7 @@ const ManageBillBoard = () => {
             <Label>Label</Label>
             <Input
               type="text"
-              className="mt-2"
+              className="mt-2 w-[217px]"
               value={label}
               onChange={handleLabelChange}
             />

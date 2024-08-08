@@ -1,19 +1,24 @@
+"use client"
 import Header from '@/components/Header'
 import { useUserStore } from '@/store/useUserStore'
 import React from 'react'
+import { DataTable } from './data-table'
 
-const ManageCategories = () => {
+const Categories = () => {
     const {storeId} = useUserStore()
   return (
     <div>
       <Header
-        name="Billboards"
+        name="Categories"
         stocks={3}
-        desc="Manage billboards for your store"
-        route={`/manage-billboards/storeId?${storeId}`}
+        desc="Manage categories for your store"
+        route={`/manage-categories/storeId?${storeId}`}
       />
+      <div className="mx-10 my-3">
+        <DataTable />
+      </div>
     </div>
   )
 }
 
-export default ManageCategories
+export default Categories

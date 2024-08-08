@@ -19,9 +19,14 @@ import { useState } from "react";
 import { useUserStore } from "@/store/useUserStore";
 
 const NavLink = ({ href, children }: { href: string; children: string }) => {
-  const pathname = usePathname();
-  const isActive = pathname === href;
+  let pathname = usePathname();
+  const { storeId } = useUserStore();
+  
+  if (href !== "/") {
+    pathname += `?${storeId}`;
+  }
 
+  const isActive = pathname === href;
   return (
     <Link href={href}>
       <span className={isActive ? "font-bold" : ""}>{children}</span>
@@ -32,7 +37,7 @@ const NavLink = ({ href, children }: { href: string; children: string }) => {
 const Navbar = () => {
   const { setTheme, resolvedTheme } = useTheme();
   const [position, setPosition] = useState<string>("dark");
-  const {storeId} = useUserStore()
+  const { storeId } = useUserStore();
   return (
     <div className="flex justify-between h-[55px] items-center mx-2">
       <div>
@@ -65,9 +70,22 @@ const Navbar = () => {
               value={position}
               onValueChange={setPosition}
             >
-              <DropdownMenuRadioItem onClick={() => setTheme('light')} value="light">Light</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem onClick={() => setTheme('dark')} value="dark">Dark</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem onClick={() => setTheme('system')} value="system">
+              <DropdownMenuRadioItem
+                onClick={() => setTheme("light")}
+                value="light"
+              >
+                Light
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem
+                onClick={() => setTheme("dark")}
+                value="dark"
+              >
+                Dark
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem
+                onClick={() => setTheme("system")}
+                value="system"
+              >
                 System
               </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
