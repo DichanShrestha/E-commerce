@@ -1,11 +1,11 @@
-"use client"
-import Header from '@/components/Header'
-import { useUserStore } from '@/store/useUserStore'
-import React from 'react'
-import { DataTable } from './data-table'
+"use client";
+import Header from "@/components/Header";
+import { useUserStore } from "@/store/useUserStore";
+import React from "react";
+import { DataTable } from "./data-table";
 
 const Categories = () => {
-    const {storeId} = useUserStore()
+  const { storeId } = useUserStore();
   return (
     <div>
       <Header
@@ -18,7 +18,7 @@ const Categories = () => {
         <DataTable />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Categories
+export default Categories;
