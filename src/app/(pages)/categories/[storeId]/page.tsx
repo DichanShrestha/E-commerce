@@ -1,16 +1,25 @@
 "use client";
 import Header from "@/components/Header";
 import { useUserStore } from "@/store/useUserStore";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { DataTable } from "./data-table";
+import axios from "axios";
 
 const Categories = () => {
   const { storeId } = useUserStore();
+  const [totalCategories, setTotalCategories] = useState<number>(0)
+  useEffect(() => {
+    const getTotalCategories = async () => {
+      const response = await axios.get(`/api/categories/${storeId}`);
+      setTotalCategories(response.data.data.length)      
+    }
+    getTotalCategories()
+  }, [])
   return (
     <div>
       <Header
         name="Categories"
-        stocks={3}
+        stocks={totalCategories}
         desc="Manage categories for your store"
         route={`/manage-categories/storeId?${storeId}`}
       />

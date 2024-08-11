@@ -15,6 +15,7 @@ import { useUserStore } from "@/store/useUserStore";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 const ManageCategories = () => {
   const [billboard, setBillboard] = useState<[]>([]);
@@ -23,7 +24,24 @@ const ManageCategories = () => {
   const [selectedBillboard, setSelectedBillboard] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
+  const [isUpdatePage, setIsUpdatePage] = useState<boolean>(false);
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const updatedName = searchParams.get("name");
+  const updatedBillboardLabel = searchParams.get("billboardLabel");
+  const updatedBillboardId = searchParams.get("id");
+
+  useEffect(() => {
+    if (updatedBillboardId || updatedBillboardLabel || updatedName) {
+      setIsUpdatePage(true);
+    }
+    if (updatedName) {
+      setName(updatedName);
+    }
+    if (updatedBillboardLabel) {
+      setSelectedBillboard(updatedBillboardLabel);
+    }
+  }, [updatedBillboardId, updatedBillboardLabel, updatedName]);
 
   useEffect(() => {
     const fetchBillboard = async () => {
@@ -75,6 +93,43 @@ const ManageCategories = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      setIsLoading(true);
+      const payload = {
+        id: updatedBillboardId,
+        updatedBillboardLabel,
+        updatedName,
+      };
+      const response = await axios.patch(
+        `/api/categories/${storeId}`,
+        payload,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      console.log(response);
+      
+      toast({
+        title: "Success",
+        description: response.data.message,
+      });
+    } catch (error: any) {
+      console.log("Error updating categories: ", error);
+      let errorMessage = "An unknown error occured";
+      if (error.response && error.response.data && error.response.data.message){
+      errorMessage = error.response.data.message;
+      }      
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -133,12 +188,18 @@ const ManageCategories = () => {
           </div>
         </div>
         <div className="mt-3">
-          <Button onClick={handleCreate} variant="outline" disabled={isLoading}>
+          <Button
+            onClick={isUpdatePage ? handleUpdate : handleCreate}
+            variant="outline"
+            disabled={isLoading}
+          >
             {isLoading ? (
               <>
                 <Loader2 className="animate-spin h-4 w-4 mr-2" />
                 Loading
               </>
+            ) : isUpdatePage ? (
+              "Update"
             ) : (
               "Create"
             )}

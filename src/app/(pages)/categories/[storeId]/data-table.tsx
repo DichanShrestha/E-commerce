@@ -65,10 +65,10 @@ export const columns: ColumnDef<Categories>[] = [
     cell: ({ row }) => <div className="lowercase">{row.getValue("Name")}</div>,
   },
   {
-    accessorKey: "Billboards",
+    accessorKey: "Billboard",
     header: () => <div className="">Billboards</div>,
     cell: ({ row }) => {
-      const Billboards: string = row.getValue("Billboards");
+      const Billboards: string = row.getValue("Billboard");
 
       return <div className=" font-medium">{Billboards}</div>;
     },
@@ -91,11 +91,13 @@ export const columns: ColumnDef<Categories>[] = [
       const { storeId } = useUserStore();
       const data = {
         id: payment.id,
+        name: payment.Name,
+        billboardLabel: payment.Billboard
       };
 
       const handleDelete = async () => {
         try {
-          const response = await axios.delete(`/api/billboards/${storeId}`, {
+          const response = await axios.delete(`/api/categories/${storeId}`, {
             data: { id: payment.id },
             headers: { "Content-Type": "application/json" },
           });
@@ -136,13 +138,13 @@ export const columns: ColumnDef<Categories>[] = [
               }}
             >
               <IoCopyOutline className="mr-2" />
-              Copy image
+              Copy Id
             </DropdownMenuItem>
             <DropdownMenuItem>
               <FaRegEdit className="mr-2" />
               <Link
                 href={{
-                  pathname: `/manage-billboards/storeId?${storeId}`,
+                  pathname: `/manage-categories/storeId?${storeId}`,
                   query: data,
                 }}
               >
@@ -172,14 +174,14 @@ export function DataTable() {
   const { storeId } = useUserStore();
 
   React.useEffect(() => {
-    const fetchStoreId = async () => {
+    const fetchCategories = async () => {
       try {
-        const response = await axios.get(`/api/billboards/${storeId}`);
+        const response = await axios.get(`/api/categories/${storeId}`);
         const transformedData = response.data.data.map((item: any) => ({
           id: item._id,
-          Label: item.label,
+          Name: item.name,
           Date: new Date(item.createdAt).toLocaleDateString(),
-          ImageURL: item.imageURL,
+          Billboard: item.billboardLabel,
         }));
 
         setData(transformedData);
@@ -188,7 +190,7 @@ export function DataTable() {
       }
     };
 
-    fetchStoreId();
+    fetchCategories();
   }, [storeId]);
 
   const table = useReactTable({
@@ -215,9 +217,9 @@ export function DataTable() {
       <div className="flex items-center py-4">
         <Input
           placeholder="Search"
-          value={(table.getColumn("Label")?.getFilterValue() as string) ?? ""}
+          value={(table.getColumn("Name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("Label")?.setFilterValue(event.target.value)
+            table.getColumn("Name")?.setFilterValue(event.target.value)
           }
           className="max-w-[300px]"
         />
