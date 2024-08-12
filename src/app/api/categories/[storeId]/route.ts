@@ -1,6 +1,5 @@
 import dbConnect from "@/lib/dbConnect";
 import CategoryModel from "@/model/categories.model";
-import { ifError } from "assert";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {

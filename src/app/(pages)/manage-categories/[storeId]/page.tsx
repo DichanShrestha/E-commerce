@@ -111,7 +111,6 @@ const ManageCategories = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
-      console.log(response);
       
       toast({
         title: "Success",
