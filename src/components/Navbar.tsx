@@ -48,7 +48,7 @@ const Navbar = () => {
         <NavLink href={`/billboards/storeId?${storeId}`}>Billboards</NavLink>
         <NavLink href={`/categories/storeId?${storeId}`}>Categories</NavLink>
         <NavLink href={`/sizes/storeId?${storeId}`}>Sizes</NavLink>
-        <NavLink href="/colors">Colors</NavLink>
+        <NavLink href={`/colors/storeId?${storeId}`}>Colors</NavLink>
         <NavLink href="/products">Products</NavLink>
         <NavLink href="/orders">Orders</NavLink>
       </div>

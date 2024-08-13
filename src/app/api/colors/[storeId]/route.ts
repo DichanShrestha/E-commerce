@@ -1,5 +1,5 @@
 import dbConnect from "@/lib/dbConnect";
-import SizeModel from "@/model/sizes.model";
+import ColorModel from "@/model/colors.model";
 import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const sizes = new SizeModel({
+    const sizes = new ColorModel({
       name,
       value,
       categoryId,
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     if (!sizes) {
       return NextResponse.json(
-        { message: "DB error creating sizes", success: false },
+        { message: "DB error creating colors", success: false },
         { status: 500 }
       );
     }
@@ -36,13 +36,13 @@ export async function POST(request: NextRequest) {
     await sizes.save();
 
     return NextResponse.json(
-      { message: "Sizes created successfully", success: true },
+      { message: "Colors added successfully", success: true },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error creating sizes: ", error);
+    console.error("Error creating colors: ", error);
     return NextResponse.json(
-      { message: "Error creating sizes", success: false },
+      { message: "Error creating colors", success: false },
       { status: 500 }
     );
   }
@@ -55,24 +55,23 @@ export async function GET(request: NextRequest) {
     const id = url.toString().split("/");
     const storeId = id[id.length - 1];
 
-    const size = await SizeModel.find({ storeId });
+    const color = await ColorModel.find({ storeId });
 
-    if (!size) {
+    if (!color) {
       return NextResponse.json(
-        { message: "DB error while retrieving sizes" },
+        { message: "DB error while retrieving colors" },
         { status: 500 }
       );
     }
 
-
     return NextResponse.json(
-      { data: size, message: "Sizes retrieved" },
+      { data: color, message: "Colors retrieved" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error getting sizes: ", error);
+    console.error("Error getting colors: ", error);
     return NextResponse.json(
-      { message: "Error getting sizes" },
+      { message: "Error getting colors" },
       { status: 500 }
     );
   }
@@ -101,11 +100,11 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const existingSize = await SizeModel.findById(id);
+    const existingSize = await ColorModel.findById(id);
     
     if (!existingSize) {
       return NextResponse.json(
-        { message: "Size not found", success: false },
+        { message: "Color not found", success: false },
         { status: 404 }
       );
     }
@@ -135,30 +134,30 @@ export async function PATCH(request: NextRequest) {
       updateData.category = updatedCategory
     }
 
-    const updatedSize = await SizeModel.findByIdAndUpdate(id, updateData, {
+    const updatedSize = await ColorModel.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
     });
 
     if (!updatedSize) {
       return NextResponse.json(
-        { message: "Failed to update size", success: false },
+        { message: "Failed to update color", success: false },
         { status: 500 }
       );
     }
 
     return NextResponse.json(
       {
-        message: "Size updated successfully",
+        message: "Color updated successfully",
         success: true,
         data: updatedSize,
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error updating size:", error);
+    console.error("Error updating color:", error);
     return NextResponse.json(
-      { message: "Error updating size", success: false },
+      { message: "Error updating color", success: false },
       { status: 500 }
     );
   }
@@ -173,23 +172,23 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ message: "ID is required" }, { status: 400 });
     }
 
-    const deletedSize = await SizeModel.findByIdAndDelete(id);
+    const deletedSize = await ColorModel.findByIdAndDelete(id);
 
     if (!deletedSize) {
       return NextResponse.json(
-        { message: "Size not found" },
+        { message: "Color not found" },
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { message: "Size deleted successfully", success: true },
+      { message: "Color deleted successfully", success: true },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting size: ", error);
+    console.error("Error deleting color: ", error);
     return NextResponse.json(
-      { message: "Error deleting size", success: false },
+      { message: "Error deleting color", success: false },
       { status: 500 }
     );
   }

@@ -9,11 +9,11 @@ const Sizes = () => {
   const { storeId } = useUserStore();
   const [totalSizes, setTotalSizes] = useState<number>(0)
   useEffect(() => {
-    const getTotalCategories = async () => {
+    const getTotalSize = async () => {
       const response = await axios.get(`/api/sizes/${storeId}`);
       setTotalSizes(response.data.data.length)      
     }
-    getTotalCategories()
+    getTotalSize()
   }, [])
   return (
     <div>
