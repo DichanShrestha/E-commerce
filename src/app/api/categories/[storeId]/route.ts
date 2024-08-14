@@ -1,15 +1,17 @@
 import dbConnect from "@/lib/dbConnect";
+import BillboardModel from "@/model/billboards.model";
 import CategoryModel from "@/model/categories.model";
+import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   await dbConnect();
   try {
-    const {name, billboardLabel, billboardId} = await request.json();
+    const { name, billboardLabel, billboardId } = await request.json();
     const url = new URL(request.url);
     const id = url.toString().split("/");
     const storeId = id[id.length - 1];
-    
+
     if (!name || !billboardId || !billboardLabel || !storeId) {
       return NextResponse.json(
         { message: "All credentials required", success: false },
@@ -21,9 +23,9 @@ export async function POST(request: NextRequest) {
       storeId,
       billboardId,
       billboardLabel,
-      name
-    })
-    
+      name,
+    });
+
     if (!category) {
       return NextResponse.json(
         { message: "DB error creating category", success: false },
@@ -80,7 +82,8 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const { updatedName, updatedBillboardLabel, id } = await request.json();
-
+    console.log(updatedBillboardLabel, updatedName);
+    
     if (!id) {
       return NextResponse.json(
         { message: "Category ID is required", success: false },
@@ -88,35 +91,54 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    if (!updatedName && !updatedBillboardLabel) {
+    if (!updatedName) {
       return NextResponse.json(
         {
-          message: "At least one of 'name' or 'label' is required",
+          message: "Name is required",
           success: false,
         },
         { status: 400 }
       );
     }
 
-    const existingCategory = await CategoryModel.findById(id)
-    if (existingCategory?.name === updatedName) {
+    const existingCategory = await CategoryModel.findById(id);
+    if (!existingCategory) {
       return NextResponse.json(
-        {
-          message: "Name already exists",
-          success: false,
-        },
+        { message: "Category not found", success: false },
+        { status: 404 }
+      );
+    }
+
+    const existingBillboard = updatedBillboardLabel
+      ? await BillboardModel.findOne({ label: updatedBillboardLabel })
+      : null;
+
+    const isUpdateNeeded =
+      (updatedName && existingCategory.name !== updatedName) ||
+      (updatedBillboardLabel &&
+        existingCategory.billboardLabel !== updatedBillboardLabel) ||
+      (existingBillboard &&
+        existingCategory.billboardId?.toString() !==
+          existingBillboard._id.toString());
+
+    if (!isUpdateNeeded) {
+      return NextResponse.json(
+        { message: "Enter something different to update", success: false },
         { status: 400 }
       );
     }
 
-    type UpdateDataType = {
-      updatedName?: string;
-      updatedBillboardLabel?: string;
-    };
+    const updateData: Partial<{
+      name: string;
+      billboardLabel: string;
+      billboardId: mongoose.Types.ObjectId;
+    }> = {};
 
-    const updateData: UpdateDataType = {};
-    if (updatedName) updateData.updatedName = updatedName;
-    if (updatedBillboardLabel) updateData.updatedBillboardLabel = updatedBillboardLabel;
+    if (updatedName) updateData.name = updatedName;
+    if (updatedBillboardLabel && existingBillboard) {
+      updateData.billboardLabel = updatedBillboardLabel;
+      updateData.billboardId = existingBillboard._id;
+    }
 
     const updatedCategory = await CategoryModel.findByIdAndUpdate(
       id,

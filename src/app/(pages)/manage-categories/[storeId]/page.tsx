@@ -101,7 +101,7 @@ const ManageCategories = () => {
       setIsLoading(true);
       const payload = {
         id: updatedBillboardId,
-        updatedBillboardLabel,
+        updatedBillboardLabel: selectedBillboard,
         updatedName,
       };
       const response = await axios.patch(

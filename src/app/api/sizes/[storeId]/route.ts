@@ -1,4 +1,5 @@
 import dbConnect from "@/lib/dbConnect";
+import CategoryModel from "@/model/categories.model";
 import SizeModel from "@/model/sizes.model";
 import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
@@ -82,8 +83,7 @@ export async function PATCH(request: NextRequest) {
   await dbConnect();
 
   try {
-    const { updatedName, updatedValue, id, updatedCategory } =
-      await request.json();      
+    const { updatedName, updatedValue, id, updatedCategory } = await request.json();  
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -91,6 +91,7 @@ export async function PATCH(request: NextRequest) {
         { status: 400 }
       );
     }
+    
     if (!updatedName && !updatedValue && !updatedCategory) {
       return NextResponse.json(
         {
@@ -109,11 +110,23 @@ export async function PATCH(request: NextRequest) {
         { status: 404 }
       );
     }
-   
+
+    let category = null;
+    if (updatedCategory) {
+      category = await CategoryModel.findOne({ name: updatedCategory });
+      if (!category) {
+        return NextResponse.json(
+          { message: "Category not found", success: false },
+          { status: 404 }
+        );
+      }
+    }
+
     const isUpdateNeeded =
       (updatedName && existingSize.name !== updatedName) ||
-      (updatedValue && existingSize.value !== updatedValue) 
-        
+      (updatedValue && existingSize.value !== updatedValue) ||
+      (category && existingSize.categoryId.toString() !== category._id.toString());
+
     if (!isUpdateNeeded) {
       return NextResponse.json(
         { message: "Enter something different to update", success: false },
@@ -127,12 +140,12 @@ export async function PATCH(request: NextRequest) {
       categoryId: mongoose.Types.ObjectId;
       category: string;
     }> = {};
-
+    
     if (updatedName) updateData.name = updatedName;
     if (updatedValue) updateData.value = updatedValue;
-    if (updatedCategory) {
-      updateData.categoryId = new mongoose.Types.ObjectId(id);
-      updateData.category = updatedCategory
+    if (category) {
+      updateData.categoryId = category._id;
+      updateData.category = updatedCategory;
     }
 
     const updatedSize = await SizeModel.findByIdAndUpdate(id, updateData, {
@@ -163,6 +176,7 @@ export async function PATCH(request: NextRequest) {
     );
   }
 }
+
 
 export async function DELETE(request: NextRequest) {
   await dbConnect();

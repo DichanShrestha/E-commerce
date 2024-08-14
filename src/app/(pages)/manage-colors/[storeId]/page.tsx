@@ -116,7 +116,7 @@ const ManageColors = () => {
 
     try {
       const payload = {
-        updatedCategory,
+        updatedCategory: selectedCategory,
         updatedName: name,
         updatedValue,
         id: sizeId,
