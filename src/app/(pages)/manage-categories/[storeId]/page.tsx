@@ -102,7 +102,7 @@ const ManageCategories = () => {
       const payload = {
         id: updatedBillboardId,
         updatedBillboardLabel: selectedBillboard,
-        updatedName,
+        updatedName: name,
       };
       const response = await axios.patch(
         `/api/categories/${storeId}`,
