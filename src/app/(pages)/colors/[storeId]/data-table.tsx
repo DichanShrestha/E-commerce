@@ -70,14 +70,14 @@ export const columns: ColumnDef<Categories>[] = [
     header: () => <div className="">Value</div>,
     cell: ({ row }) => {
       const Value: string = row.getValue("Value");
-      console.log(row.original.Value);
-      
+      const color = row.original.Value;
       return (
         <div className=" font-medium">
           <div className="flex gap-2 items-center">
           <div>{Value}</div>
           <div
-            className={`h-4 w-4 rounded-full bg-[${row.original.Value}]`}
+            className={`h-4 w-4 rounded-full`}
+            style={{ backgroundColor: color }}
           ></div>
           </div>
         </div>
