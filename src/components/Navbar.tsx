@@ -49,7 +49,7 @@ const Navbar = () => {
         <NavLink href={`/categories/storeId?${storeId}`}>Categories</NavLink>
         <NavLink href={`/sizes/storeId?${storeId}`}>Sizes</NavLink>
         <NavLink href={`/colors/storeId?${storeId}`}>Colors</NavLink>
-        <NavLink href="/products">Products</NavLink>
+        <NavLink href={`/products/storeId?${storeId}`}>Products</NavLink>
         <NavLink href="/orders">Orders</NavLink>
       </div>
       <div className="flex gap-3">
