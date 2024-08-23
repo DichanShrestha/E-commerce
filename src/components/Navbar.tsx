@@ -51,6 +51,7 @@ const Navbar = () => {
         <NavLink href={`/colors/storeId?${storeId}`}>Colors</NavLink>
         <NavLink href={`/products/storeId?${storeId}`}>Products</NavLink>
         <NavLink href="/orders">Orders</NavLink>
+        <NavLink href="/settings">Settings</NavLink>
       </div>
       <div className="flex gap-3">
         <DropdownMenu>
