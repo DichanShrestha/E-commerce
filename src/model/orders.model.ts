@@ -3,13 +3,13 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IOrder extends Document {
   payment_method: string;
-  transaction_code?: string;
+  transaction_uuid?: string;
   amount: number;
   products: {
     product: string;
     quantity: number;
   }[];
-  status: "created" | "paid" | "shipping" | "delivered";
+  status?: "created" | "paid" | "shipping" | "delivered";
   address?: string;
 }
 
@@ -20,7 +20,7 @@ const OrderSchema: Schema<IOrder> = new Schema(
       required: true,
       default: "esewa",
     },
-    transaction_code: String,
+    transaction_uuid: String,
     amount: {
       type: Number,
       required: true,

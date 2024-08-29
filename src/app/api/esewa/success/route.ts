@@ -6,18 +6,27 @@ export async function POST(req: NextRequest) {
   await dbConnect();
 
   try {
-    const { transaction_uuid, transaction_code } = await req.json();
-    const order = await Order.findById(transaction_uuid);
+    const { transaction_uuid } = await req.json();
+    const order = await Order.findOne({
+      transaction_uuid,
+    });
 
     if (order) {
       order.status = "paid";
-      order.transaction_code = transaction_code;
+      order.transaction_uuid = transaction_uuid;
       await order.save();
-      return NextResponse.redirect(new URL("/order-success", req.url));
+
+      return NextResponse.json(
+        { message: "success updating status" },
+        { status: 200 }
+      );
     } else {
       return NextResponse.json({ message: "Order not found" }, { status: 404 });
     }
   } catch (error) {
-    return NextResponse.json({ error: "Failed to process payment" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to process payment" },
+      { status: 500 }
+    );
   }
 }
