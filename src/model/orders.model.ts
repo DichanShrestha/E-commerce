@@ -4,6 +4,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IOrder extends Document {
   payment_method: string;
   transaction_uuid?: string;
+  transaction_code?: string;
   amount: number;
   products: {
     product: string;
@@ -21,6 +22,7 @@ const OrderSchema: Schema<IOrder> = new Schema(
       default: "esewa",
     },
     transaction_uuid: String,
+    transaction_code: String,
     amount: {
       type: Number,
       required: true,
@@ -52,4 +54,5 @@ const OrderSchema: Schema<IOrder> = new Schema(
   }
 );
 
-export default mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema);
+export default mongoose.models.Order ||
+  mongoose.model<IOrder>("Order", OrderSchema);

@@ -1,13 +1,10 @@
 "use client"
 
-import { TrendingUp } from "lucide-react"
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts"
 
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -17,28 +14,57 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
-]
+import { useEffect, useState } from "react"
+import axios from "axios"
 
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
-  },
-} satisfies ChartConfig
+const getMonthName = (monthNumber: number) => {
+  const date = new Date();
+  date.setMonth(monthNumber - 1);
+  return date.toLocaleString('default', { month: 'long' });
+}
 
-export default function Chart({className}: {className?: string}) {
+const generateNextMonthsData = (currentMonth: number) => {
+  let nextMonthsData = [];
+  for (let i = 0; i < 5; i++) {
+    let monthNumber = (currentMonth + i) % 12 || 12;
+    let monthName = getMonthName(monthNumber);
+    nextMonthsData.push({ month: monthName, desktop: 0 });
+  }
+  return nextMonthsData;
+}
+
+export default function Chart({ className }: { className?: string }) {
+  const [chartData, setChartData] = useState<any>([]);
+
+  useEffect(() => {
+    const getChartDetails = async () => {
+      try {
+        const response = await axios.get('/api/get-chart-details');
+        const { data } = response.data;
+
+        if (data && data.length > 0) {
+          const chartDetails = data.map((item: any) => ({
+            month: getMonthName(item.month),
+            desktop: item.count,
+          }));
+
+          const currentMonth = new Date().getMonth() + 1;
+          const nextMonthsData = generateNextMonthsData(currentMonth);
+
+          setChartData([...chartDetails, ...nextMonthsData]);
+        }
+
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    getChartDetails();
+  }, []);
+
   return (
     <Card className={`${className}`}>
       <CardHeader>
         <CardTitle className="text-lg">Overview</CardTitle>
-        {/* <CardDescription>January - June 2024</CardDescription> */}
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -72,14 +98,13 @@ export default function Chart({className}: {className?: string}) {
           </BarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
-        </div>
-      </CardFooter>
     </Card>
   )
 }
+
+const chartConfig = {
+  desktop: {
+    label: "Desktop",
+    color: "hsl(var(--chart-1))",
+  },
+} satisfies ChartConfig

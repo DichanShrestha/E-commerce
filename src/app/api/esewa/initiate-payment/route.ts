@@ -7,9 +7,17 @@ export async function POST(req: NextRequest) {
   await dbConnect();
 
   try {
-    const orderData = await req.json();
-    const newOrder = await Order.create(orderData);
-
+    const {payment_method, amount, products, address} = await req.json();
+    const newOrder = new Order({
+      payment_method,
+      amount,
+      address,
+      products,
+      status: "paid",
+    })
+    
+    await newOrder.save();
+    
     const signature = createSignature(
       `total_amount=${newOrder.amount},transaction_uuid=${newOrder._id},product_code=EPAYTEST`
     );
