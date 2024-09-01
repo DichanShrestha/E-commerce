@@ -86,9 +86,7 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const { updatedName, updatedColor, productId, updatedCategory, updatedSize, updatedPrice, updatedFeatured, updatedArchived, updatedImageURL } =
-      await request.json();   
-      console.log(updatedName);
-               
+      await request.json();
 
     if (!mongoose.Types.ObjectId.isValid(productId)) {
       return NextResponse.json(
@@ -98,31 +96,31 @@ export async function PATCH(request: NextRequest) {
     }
 
     const existingProduct = await ProductModel.findById(productId);
-    
+
     if (!existingProduct) {
       return NextResponse.json(
         { message: "Product not found", success: false },
         { status: 404 }
       );
     }
-   
+
     const isUpdateNeeded =
       (updatedName && existingProduct.name !== updatedName) ||
       (updatedColor && existingProduct.color !== updatedColor) ||
       (updatedPrice && existingProduct.price !== updatedPrice) ||
       (updatedCategory && existingProduct.category !== updatedCategory) ||
       (updatedSize && existingProduct.size !== updatedSize) ||
-      (updatedFeatured && existingProduct.featured !== updatedFeatured) ||
-      (updatedArchived && existingProduct.archived !== updatedArchived) ||
-      (updatedImageURL && existingProduct.imageURL !== updatedImageURL)
-        
+      (typeof updatedFeatured === 'boolean' && existingProduct.featured !== updatedFeatured) ||
+      (typeof updatedArchived === 'boolean' && existingProduct.archived !== updatedArchived) ||
+      (updatedImageURL && existingProduct.imageURL !== updatedImageURL);
+
     if (!isUpdateNeeded) {
       return NextResponse.json(
         { message: "Enter something different to update", success: false },
         { status: 400 }
       );
     }
-    // updatedName, updatedColor, productId, updatedCategory, updatedSize, updatedPrice, updatedFeatured, updatedArchived, updatedImageURL
+
     const updateData: Partial<{
       name: string;
       color: string;
@@ -139,8 +137,8 @@ export async function PATCH(request: NextRequest) {
     if (updatedCategory) updateData.category = updatedCategory;
     if (updatedSize) updateData.size = updatedSize;
     if (updatedPrice) updateData.price = updatedPrice;
-    if (updatedFeatured) updateData.featured = updatedFeatured;
-    if (updatedArchived) updateData.archived = updatedArchived;
+    if (typeof updatedFeatured === 'boolean') updateData.featured = updatedFeatured;
+    if (typeof updatedArchived === 'boolean') updateData.archived = updatedArchived;
     if (updatedImageURL) updateData.imageURL = updatedImageURL;
 
     const updatedProduct = await ProductModel.findByIdAndUpdate(productId, updateData, {

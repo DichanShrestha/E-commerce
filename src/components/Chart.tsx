@@ -41,6 +41,8 @@ export default function Chart({ className }: { className?: string }) {
       try {
         const response = await axios.get('/api/get-chart-details');
         const { data } = response.data;
+        console.log(data);
+        
 
         if (data && data.length > 0) {
           const chartDetails = data.map((item: any) => ({

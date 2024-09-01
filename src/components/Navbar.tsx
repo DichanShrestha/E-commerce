@@ -21,7 +21,7 @@ import { useUserStore } from "@/store/useUserStore";
 const NavLink = ({ href, children }: { href: string; children: string }) => {
   let pathname = usePathname();
   const { storeId } = useUserStore();
-  
+
   if (href !== "/") {
     pathname += `?${storeId}`;
   }
@@ -50,8 +50,6 @@ const Navbar = () => {
         <NavLink href={`/sizes/storeId?${storeId}`}>Sizes</NavLink>
         <NavLink href={`/colors/storeId?${storeId}`}>Colors</NavLink>
         <NavLink href={`/products/storeId?${storeId}`}>Products</NavLink>
-        <NavLink href="/orders">Orders</NavLink>
-        <NavLink href="/settings">Settings</NavLink>
       </div>
       <div className="flex gap-3">
         <DropdownMenu>

@@ -1,11 +1,11 @@
 import dbConnect from "@/lib/dbConnect";
-import ProductModel from "@/model/products.model";
+import ordersModel from "@/model/orders.model";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   await dbConnect();
   try {
-    const chartDetails = await ProductModel.aggregate([
+    const chartDetails = await ordersModel.aggregate([
         {
           $group: {
             _id: {
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
           $sort: { "_id.year": 1, "_id.month": 1 }
         }
       ])
-
+      
       return NextResponse.json({data: chartDetails, message: "chart details attrived successfully"})
       
   } catch (error) {

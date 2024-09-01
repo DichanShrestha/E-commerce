@@ -16,14 +16,12 @@ async function getStoreData() {
 
 export default async function Home() {
   const data = await getStoreData();
-  console.log(data);
   
-
   const inventory = [
     {
       text: "Total Revenue",
       image: "savings",
-      number: data ? `Rs ${data[0].totalPrice}` : "N/A",  // Example of binding fetched data
+      number: data ? `Rs ${data[0].totalPrice}` : "N/A", 
     },
     {
       text: "Sales",
